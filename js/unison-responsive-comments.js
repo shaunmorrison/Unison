@@ -6,7 +6,8 @@ Unison.ConditionalLoad = (function() {
 
   // config attributes
   var usnCL = {
-    trigger : 'data-usn-load-if',
+    triggerMin : 'data-usn-load-if-larger', //trigger if content is to be loaded in if larger than this breakpoint
+    triggerMax : 'data-usn-load-if-smaller', //trigger if content is to be loaded in if smaller than this breakpoint
     breakpoints : {},
     noMatchMediaSize : '800px'
   };
@@ -18,7 +19,8 @@ Unison.ConditionalLoad = (function() {
       el = nodes[i];
       obj = {
         'element' : el,
-        'breakpoint' :  el.getAttribute(usnCL.trigger)
+        'breakpointMin' :  el.getAttribute(usnCL.triggerMin),
+        'breakpointMax' :  el.getAttribute(usnCL.triggerMax)
       };
       breakpoints.push(obj);
     }
@@ -29,8 +31,21 @@ Unison.ConditionalLoad = (function() {
   // test nodes against named breakpoints
   var testNodes = function() {
     this.forEach(function(node) {
-      var mediaMatch = ( !window.matchMedia ) ? noMatchMediaSize : usnCL.breakpoints[node.breakpoint] ;
-      if( window.matchMedia('(min-width: ' + mediaMatch + ')').matches && node.element.getAttribute('title') !== 'loaded' ) {
+      var mediaMatch;
+      var minOrMax = 'min';
+      //Test if breakpoint set, then test if it's a larger-than or smaller-than breakpoint. 
+      if(!window.matchMedia){
+      		mediaMatch = noMatchMediaSize
+      }else if(usnCL.breakpoints[node.breakpointMin] != undefined) {
+      		mediaMatch = usnCL.breakpoints[node.breakpointMin];
+      		console.log('breakpointMin '+usnCL.breakpoints[node.breakpointMin]);
+      } else {
+      		mediaMatch = usnCL.breakpoints[node.breakpointMax];
+      		var minOrMax = 'max';
+      		console.log('breakpointMax '+usnCL.breakpoints[node.breakpointMax]);
+      }
+
+      if( window.matchMedia('(' + minOrMax + '-width: ' + mediaMatch + ')').matches && node.element.getAttribute('title') !== 'loaded' ) {
         insertNode.apply(node);
         return;
       }
@@ -96,7 +111,7 @@ Unison.ConditionalLoad = (function() {
 
   // initiate when DOM ready
   document.addEventListener("DOMContentLoaded", function(event) {
-    var nodes = cacheNodes( document.querySelectorAll('[' + usnCL.trigger + ']') );
+    var nodes = cacheNodes( document.querySelectorAll('[' + usnCL.triggerMin + '], [' + usnCL.triggerMax + ']') );
     window.addEventListener('resize', debounce(testNodes.bind(nodes), 250));
     window.addEventListener('load', testNodes.bind(nodes));
   });
