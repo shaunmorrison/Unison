@@ -35,16 +35,13 @@ Unison.ConditionalLoad = (function() {
       var minOrMax = 'min';
       //Test if breakpoint set, then test if it's a larger-than or smaller-than breakpoint. 
       if(!window.matchMedia){
-      		mediaMatch = noMatchMediaSize
+      	mediaMatch = noMatchMediaSize
       }else if(usnCL.breakpoints[node.breakpointMin] != undefined) {
-      		mediaMatch = usnCL.breakpoints[node.breakpointMin];
-      		console.log('breakpointMin '+usnCL.breakpoints[node.breakpointMin]);
+      	mediaMatch = usnCL.breakpoints[node.breakpointMin];
       } else {
-      		mediaMatch = usnCL.breakpoints[node.breakpointMax];
-      		var minOrMax = 'max';
-      		console.log('breakpointMax '+usnCL.breakpoints[node.breakpointMax]);
+      	mediaMatch = usnCL.breakpoints[node.breakpointMax];
+      	var minOrMax = 'max';
       }
-
       if( window.matchMedia('(' + minOrMax + '-width: ' + mediaMatch + ')').matches && node.element.getAttribute('title') !== 'loaded' ) {
         insertNode.apply(node);
         return;
@@ -115,5 +112,5 @@ Unison.ConditionalLoad = (function() {
     window.addEventListener('resize', debounce(testNodes.bind(nodes), 250));
     window.addEventListener('load', testNodes.bind(nodes));
   });
-
+  
 })();
